@@ -90,9 +90,14 @@ $(function () {
             paint = false;
         });
 
+        $('#clear').click(function (e) {
+            state = {};
+            redraw();
+        });
+
 
         eb.registerHandler('client.paint', function (err, msg) {
-            processClick(msg.body.uuid,msg.body.x, msg.body.y, msg.body.dragging,msg.body.color);
+            processClick(msg.body.uuid, msg.body.x, msg.body.y, msg.body.dragging, msg.body.color);
             redraw();
         });
 
