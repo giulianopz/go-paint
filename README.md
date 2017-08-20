@@ -1,6 +1,10 @@
-# vertx-paint
+# Vert.x EventBus collaborative paint
 
-Simple collaborative paint application using Vert.x
+Simple collaborative paint application using Vert.x EventBus
+
+Allows multiple users to draw on shared canvas.
+
+Based on great canvas tutorial: http://www.williammalone.com/articles/create-html5-canvas-javascript-drawing-app/
 
 
 ### Cloning
