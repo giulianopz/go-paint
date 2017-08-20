@@ -20,7 +20,7 @@ $(function () {
         }
         context = canvas.getContext("2d");
 
-        var paint;
+        var paint = false;
 
         var state = {};
 
@@ -95,13 +95,17 @@ $(function () {
         });
 
         $('#clear').click(function (e) {
-            state = {};
-            redraw();
+            eb.publish('client.paint.clear',{});
         });
 
 
         eb.registerHandler('client.paint', function (err, msg) {
             processClick(msg.body.uuid, msg.body.x, msg.body.y, msg.body.dragging, msg.body.color, msg.body.size);
+            redraw();
+        });
+
+        eb.registerHandler('client.paint.clear', function (err, msg) {
+            state = {};
             redraw();
         });
 

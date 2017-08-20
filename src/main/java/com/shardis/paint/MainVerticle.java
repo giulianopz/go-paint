@@ -15,7 +15,9 @@ public class MainVerticle extends AbstractVerticle {
 
         BridgeOptions bridgeOptions = new BridgeOptions()
                 .addInboundPermitted(new PermittedOptions().setAddress("client.paint"))
-                .addOutboundPermitted(new PermittedOptions().setAddress("client.paint"));
+                .addInboundPermitted(new PermittedOptions().setAddress("client.paint.clear"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("client.paint"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("client.paint.clear"));
 
         SockJSHandler sockJSHandler = SockJSHandler
                 .create(vertx)
