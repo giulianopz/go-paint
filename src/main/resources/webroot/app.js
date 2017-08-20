@@ -1,5 +1,10 @@
 $(function () {
 
+    var clientUUID = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (a, b) {
+        b = Math.random() * 16;
+        return (a === 'y' ? b & 3 | 8 : b | 0).toString(16);
+    });
+
     var eb = new EventBus('/eventbus/');
 
     eb.onopen = function () {
@@ -17,40 +22,55 @@ $(function () {
 
         var paint;
 
-        var clickX = [];
-        var clickY = [];
-        var clickDrag = [];
+        var state = {};
 
 
         var redraw = function () {
             context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
-            context.strokeStyle = $('#penColor').val();
             context.lineJoin = 'round';
             context.lineWidth = 5;
 
-            for (var i = 0; i < clickX.length; i++) {
-                context.beginPath();
-                if (clickDrag[i] && i) {
-                    context.moveTo(clickX[i - 1], clickY[i - 1]);
-                } else {
-                    context.moveTo(clickX[i] - 1, clickY[i]);
+            var clients = Object.keys(state);
+            clients.forEach(function (client) {
+                var clientState = state[client];
+
+                for (var i = 0; i < clientState.clickX.length; i++) {
+                    context.strokeStyle = clientState.colors[i];
+                    context.beginPath();
+                    if (clientState.clickDrag[i] && i) {
+                        context.moveTo(clientState.clickX[i - 1], clientState.clickY[i - 1]);
+                    } else {
+                        context.moveTo(clientState.clickX[i] - 1, clientState.clickY[i]);
+                    }
+                    context.lineTo(clientState.clickX[i], clientState.clickY[i]);
+                    context.closePath();
+                    context.stroke();
                 }
-                context.lineTo(clickX[i], clickY[i]);
-                context.closePath();
-                context.stroke();
-            }
+            });
+
+
         };
 
-        var processClick = function (x, y, dragging) {
-            clickX.push(x);
-            clickY.push(y);
-            clickDrag.push(dragging);
+        var processClick = function (uuid, x, y, dragging, color) {
+            if (!state[uuid]) {
+                state[uuid] = {
+                    clickX: [],
+                    clickY: [],
+                    clickDrag: [],
+                    colors: []
+                };
+            }
+            state[uuid].clickX.push(x);
+            state[uuid].clickY.push(y);
+            state[uuid].clickDrag.push(dragging);
+            state[uuid].colors.push(color)
         };
 
         var addClick = function (x, y, dragging) {
-            processClick(x, y, dragging);
-            eb.publish("client.paint", {x: x, y: y, dragging: dragging});
+            var color = $('#penColor').val();
+            processClick(clientUUID, x, y, dragging, color);
+            eb.publish("client.paint", {uuid: clientUUID, x: x, y: y, dragging: dragging, color: color});
         };
 
         $(canvas).mousedown(function (e) {
@@ -72,11 +92,11 @@ $(function () {
 
 
         eb.registerHandler('client.paint', function (err, msg) {
-            processClick(msg.body.x, msg.body.y, msg.body.dragging);
+            processClick(msg.body.uuid,msg.body.x, msg.body.y, msg.body.dragging,msg.body.color);
             redraw();
         });
 
-        console.log('Application is running');
+        console.log('Application is running', clientUUID);
     };
 
 
