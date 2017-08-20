@@ -37,6 +37,7 @@ $(function () {
 
                 for (var i = 0; i < clientState.clickX.length; i++) {
                     context.strokeStyle = clientState.colors[i];
+                    context.lineWidth = clientState.sizes[i];
                     context.beginPath();
                     if (clientState.clickDrag[i] && i) {
                         context.moveTo(clientState.clickX[i - 1], clientState.clickY[i - 1]);
@@ -52,25 +53,28 @@ $(function () {
 
         };
 
-        var processClick = function (uuid, x, y, dragging, color) {
+        var processClick = function (uuid, x, y, dragging, color, size) {
             if (!state[uuid]) {
                 state[uuid] = {
                     clickX: [],
                     clickY: [],
                     clickDrag: [],
-                    colors: []
+                    colors: [],
+                    sizes: []
                 };
             }
             state[uuid].clickX.push(x);
             state[uuid].clickY.push(y);
             state[uuid].clickDrag.push(dragging);
-            state[uuid].colors.push(color)
+            state[uuid].colors.push(color);
+            state[uuid].sizes.push(size);
         };
 
         var addClick = function (x, y, dragging) {
             var color = $('#penColor').val();
-            processClick(clientUUID, x, y, dragging, color);
-            eb.publish("client.paint", {uuid: clientUUID, x: x, y: y, dragging: dragging, color: color});
+            var size = $('#penSize').val();
+            processClick(clientUUID, x, y, dragging, color, size);
+            eb.publish("client.paint", {uuid: clientUUID, x: x, y: y, dragging: dragging, color: color, size: size});
         };
 
         $(canvas).mousedown(function (e) {
@@ -97,7 +101,7 @@ $(function () {
 
 
         eb.registerHandler('client.paint', function (err, msg) {
-            processClick(msg.body.uuid, msg.body.x, msg.body.y, msg.body.dragging, msg.body.color);
+            processClick(msg.body.uuid, msg.body.x, msg.body.y, msg.body.dragging, msg.body.color, msg.body.size);
             redraw();
         });
 
