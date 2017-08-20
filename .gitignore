@@ -1,0 +1,15 @@
+# Build
+build/
+
+# Gradle
+.gradle
+!gradle-wrapper.jar
+
+# IDEA
+out/
+.idea/
+*.iml
+
+# Vert.x
+.vertx/
+

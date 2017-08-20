@@ -1,0 +1,42 @@
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+repositories {
+  mavenCentral()
+}
+
+version = '0.0.1'
+group = 'com.shardis.paint'
+description = 'vert.x collaborative paint application'
+sourceCompatibility = '1.8'
+mainClassName = 'io.vertx.core.Launcher'
+
+dependencies {
+  compile 'io.vertx:vertx-core:3.4.1'
+  compile 'io.vertx:vertx-hazelcast:3.4.1'
+  compile 'io.vertx:vertx-web:3.4.1'
+}
+
+shadowJar {
+  classifier = 'fat'
+  manifest {
+    attributes 'Main-Verticle': 'com.shardis.paint.MainVerticle'
+  }
+  mergeServiceFiles {
+    include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+  }
+}
+
+build.finalizedBy('shadowJar')
