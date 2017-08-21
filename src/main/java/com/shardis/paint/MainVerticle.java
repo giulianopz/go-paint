@@ -49,7 +49,7 @@ public class MainVerticle extends AbstractVerticle {
             long messageTime = System.currentTimeMillis();
             long timeDelta = messageTime - lastStatsTime.get();
             if (timeDelta > 60_000) {
-                System.out.println("Messages per minute: " + (messageCounter.get() / (timeDelta / 60_000)));
+                System.out.println("Messages per minute: " + (messageCounter.get() / (timeDelta / 60_000.0)));
                 messageCounter.set(0);
                 lastStatsTime.set(messageTime);
             }

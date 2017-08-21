@@ -1,92 +1,64 @@
 $(function () {
 
-    var clientUUID = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (a, b) {
-        b = Math.random() * 16;
-        return (a === 'y' ? b & 3 | 8 : b | 0).toString(16);
-    });
-
     var eb = new EventBus('/eventbus/');
 
     eb.onopen = function () {
 
         var canvasDiv = document.getElementById('canvasDiv');
+
         var canvas = document.createElement('canvas');
         canvas.setAttribute('width', 800);
         canvas.setAttribute('height', 600);
         canvas.setAttribute('id', 'canvas');
         canvasDiv.appendChild(canvas);
-        if (typeof G_vmlCanvasManager !== 'undefined') {
-            canvas = G_vmlCanvasManager.initElement(canvas);
-        }
-        context = canvas.getContext("2d");
+
+        var context = canvas.getContext("2d");
 
         var paint = false;
+        var lastX = null;
+        var lastY = null;
 
-        var state = {};
-
-
-        var redraw = function () {
-            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-
+        var processClick = function (x, y, prevX, prevY, dragging, color, size) {
             context.lineJoin = 'round';
             context.lineWidth = 5;
 
-            var clients = Object.keys(state);
-            clients.forEach(function (client) {
-                var clientState = state[client];
-
-                for (var i = 0; i < clientState.clickX.length; i++) {
-                    context.strokeStyle = clientState.colors[i];
-                    context.lineWidth = clientState.sizes[i];
-                    context.beginPath();
-                    if (clientState.clickDrag[i] && i) {
-                        context.moveTo(clientState.clickX[i - 1], clientState.clickY[i - 1]);
-                    } else {
-                        context.moveTo(clientState.clickX[i] - 1, clientState.clickY[i]);
-                    }
-                    context.lineTo(clientState.clickX[i], clientState.clickY[i]);
-                    context.closePath();
-                    context.stroke();
-                }
-            });
-
-
-        };
-
-        var processClick = function (uuid, x, y, dragging, color, size) {
-            if (!state[uuid]) {
-                state[uuid] = {
-                    clickX: [],
-                    clickY: [],
-                    clickDrag: [],
-                    colors: [],
-                    sizes: []
-                };
+            context.strokeStyle = color;
+            context.lineWidth = size;
+            context.beginPath();
+            if (dragging && prevX !== null && prevY !== null) {
+                context.moveTo(prevX, prevY);
+            } else {
+                context.moveTo(x - 1, y);
             }
-            state[uuid].clickX.push(x);
-            state[uuid].clickY.push(y);
-            state[uuid].clickDrag.push(dragging);
-            state[uuid].colors.push(color);
-            state[uuid].sizes.push(size);
+            context.lineTo(x, y);
+            context.closePath();
+            context.stroke();
         };
 
         var addClick = function (x, y, dragging) {
             var color = $('#penColor').val();
             var size = $('#penSize').val();
-            processClick(clientUUID, x, y, dragging, color, size);
-            eb.publish("client.paint", {uuid: clientUUID, x: x, y: y, dragging: dragging, color: color, size: size});
+            eb.publish("client.paint", {
+                x: x,
+                y: y,
+                prevX: lastX,
+                prevY: lastY,
+                dragging: dragging,
+                color: color,
+                size: size
+            });
+            lastX = x;
+            lastY = y;
         };
 
         $(canvas).mousedown(function (e) {
             paint = true;
             addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
-            redraw();
         });
 
         $(canvas).mousemove(function (e) {
             if (paint) {
                 addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
-                redraw();
             }
         });
 
@@ -95,21 +67,18 @@ $(function () {
         });
 
         $('#clear').click(function (e) {
-            eb.publish('client.paint.clear',{});
+            eb.publish('client.paint.clear', {});
         });
 
 
         eb.registerHandler('client.paint', function (err, msg) {
-            processClick(msg.body.uuid, msg.body.x, msg.body.y, msg.body.dragging, msg.body.color, msg.body.size);
-            redraw();
+            processClick(msg.body.x, msg.body.y, msg.body.prevX, msg.body.prevY, msg.body.dragging, msg.body.color, msg.body.size);
         });
 
         eb.registerHandler('client.paint.clear', function (err, msg) {
-            state = {};
-            redraw();
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         });
 
-        console.log('Application is running', clientUUID);
     };
 
 
