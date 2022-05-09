@@ -13,3 +13,5 @@ out/
 # Vert.x
 .vertx/
 
+.vscode/
+target/
