@@ -10,19 +10,19 @@ Based on great canvas tutorial: http://www.williammalone.com/articles/create-htm
 ### Cloning
 
 ```
-git clone https://github.com/shardis/vertx-paint.git
+git clone https://github.com/giulianopz/vertx-paint.git
 ```
 
 ### Building
 
 ```
-./gradlew build
+mvn package
 ``` 
 
 ### Running
 
 ```
-java -jar ./build/libs/vertx-paint-0.0.1-fat.jar
+mvn exec:java
 ``` 
 
 App will start at http://localhost:8080/
