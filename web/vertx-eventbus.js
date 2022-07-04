@@ -147,7 +147,7 @@
                     try {
                         console.warn('No handler found for message: ', json);
                     } catch (e) {
-                        // dev tools are disabled so we cannot use console on IE
+                        console.error(e)
                     }
                 }
             }
