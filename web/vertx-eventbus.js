@@ -76,7 +76,7 @@
         var pingTimerID;
 
         // attributes
-        this.sockJSConn = new SockJS(url, null, options);
+        this.sockJSConn = new WebSocket("ws://localhost:8080/eventbus");
         this.state = EventBus.CONNECTING;
         this.handlers = {};
         this.replyHandlers = {};
