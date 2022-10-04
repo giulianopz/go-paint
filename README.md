@@ -1,30 +1,28 @@
-# Vert.x EventBus collaborative paint
+# Go collaborative paint
 
-Simple collaborative paint application using Vert.x EventBus
+Simple collaborative paint application using `gorilla/websocket` with the help of goroutines and channels.
 
-Allows multiple users to draw on shared canvas.
+Allows multiple users to draw on a shared canvas.
 
-Based on great canvas tutorial: http://www.williammalone.com/articles/create-html5-canvas-javascript-drawing-app/
+The FE part is based on a good canvas tutorial of [William Malone](http://www.williammalone.com/articles/create-html5-canvas-javascript-drawing-app/).
 
+The BE part was forked from the Java (+ Vert.x) implementation of [Tomasz Kucharzyk](https://github.com/shardis/vertx-paint) and ported to Go(lang).
 
-### Cloning
+### Clone
 
-```
+```bash
 git clone https://github.com/giulianopz/vertx-paint.git
 ```
 
-### Building
+### Build & Run
 
-```
-mvn package
+```bash
+# build and run the executable
+go19 build -o gopaint . && ./gopaint
+# or simply run the main entrypoint from the project root
+go run .
 ``` 
 
-### Running
+The app can be then accessed at: http://localhost:8080/
 
-```
-mvn exec:java
-``` 
-
-App will start at http://localhost:8080/
-
-Open it from another browser tab to collaborative paint
+Open it from more than one browser tabs to test the synchronization across multiple clients.
