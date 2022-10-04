@@ -1,0 +1,14 @@
+.content {
+    text-align: center;
+}
+
+.mt25 {
+    margin-top: 25px;
+}
+
+#canvasDiv {
+    border: 1px solid black;
+    width: 800px;
+    height: 600px;
+    margin: 25px auto 0;
+}
